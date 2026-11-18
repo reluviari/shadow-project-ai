@@ -2,7 +2,7 @@
 
 Jeito de entender um repositório sem alterar o código. Cada pessoa instala a skill na própria máquina, abre o projeto que quer analisar e pede uma fase. O código alvo só é lido. Os markdowns saem numa pasta à parte, o dossiê, fora do Git desse projeto.
 
-A skill está em [reluviari/my-skills](https://github.com/reluviari/my-skills), pasta `shadow-project`.
+A skill se chama **Shadow Project AI** e está em [reluviari/my-skills](https://github.com/reluviari/my-skills), pasta `shadow-project-ai`. O mesmo passo a passo de instalação está no `SKILL.md`.
 
 ## 1. Instalar, uma vez por pessoa
 
@@ -12,14 +12,14 @@ Na pasta onde você guarda repositórios:
 git clone https://github.com/reluviari/my-skills.git
 cd my-skills
 KIT="$(pwd)"
-name="shadow-project"
+name="shadow-project-ai"
 for h in "$HOME/.claude/skills" "$HOME/.cursor/skills" "$HOME/.agents/skills" "$HOME/.codex/skills"; do
   mkdir -p "$h"
   ln -sfn "$KIT/$name" "$h/$name"
 done
 ```
 
-Feche e abra de novo o Claude, o Cursor ou o Codex. A palavra `Shadow` passa a chamar esta skill em qualquer chat.
+Feche e abra de novo o Claude, o Cursor ou o Codex. `Shadow Project AI` passa a chamar esta skill em qualquer chat.
 
 Quem já tiver o clone só repete o bloco a partir de `cd my-skills`. Não copie a pasta da skill para outro lugar: o symlink aponta para o clone, e um `git pull` atualiza todo mundo que ligou assim.
 
@@ -31,14 +31,14 @@ Não existe arquivo de configuração. Você não troca `<REPO_ALVO>` na mão. O
 2. Envie o caminho completo, com a pasta de verdade no lugar de `~/projetos/api-pedidos`:
 
 ```text
-Shadow, inicia o dossiê de ~/projetos/api-pedidos
+Shadow Project AI, inicia o dossiê de ~/projetos/api-pedidos
 ```
 
 3. A fase 00 responde com três nomes e para. Confira se o código e o dossiê estão certos.
 4. Diga `próxima fase`. Leia o arquivo gerado. Repita até a fase 10.
 5. No fim, o agente compara o estado do projeto e lista só o que criou no dossiê.
 
-Para uma fase só: `Shadow, fase 03`. Para todas numa conversa: `Shadow, sessão completa`. Build, rede, teste e container continuam pedindo autorização.
+Para uma fase só: `Shadow Project AI, fase 03`. Para todas numa conversa: `Shadow Project AI, sessão completa`. Build, rede, teste e container continuam pedindo autorização.
 
 ### Os três nomes
 
@@ -53,7 +53,7 @@ Você informa o projeto. O agente calcula o resto e mostra na fase 00.
 O dossiê nasce ao lado do projeto, em `_analises-privadas/<nome-da-pasta>`. Se essa pasta cair dentro de outro Git, o agente propõe outro lugar e espera confirmação. Para escolher o destino:
 
 ```text
-Shadow, inicia o dossiê de ~/projetos/api-pedidos. O dossiê fica em ~/analises/api-pedidos
+Shadow Project AI, inicia o dossiê de ~/projetos/api-pedidos. O dossiê fica em ~/analises/api-pedidos
 ```
 
 Outra pessoa, em outra máquina, repete os mesmos dois passos com o caminho dela. O dossiê fica na máquina de quem rodou. Ele não entra no repositório analisado.
@@ -62,10 +62,10 @@ Outra pessoa, em outra máquina, repete os mesmos dois passos com o caminho dela
 
 | Você diz | O que acontece |
 |---|---|
-| `Shadow, inicia o dossiê de <caminho>` | Fase 00. Valida o caminho, grava o plano e para |
+| `Shadow Project AI, inicia o dossiê de <caminho>` | Fase 00. Valida o caminho, grava o plano e para |
 | `próxima fase` | A primeira fase cujo arquivo ainda não existe |
-| `Shadow, fase 03` | Só a arquitetura, se o arquivo da fase anterior existir |
-| `Shadow, sessão completa` | Fases 00 a 10, em ordem |
+| `Shadow Project AI, fase 03` | Só a arquitetura, se o arquivo da fase anterior existir |
+| `Shadow Project AI, sessão completa` | Fases 00 a 10, em ordem |
 
 | Fase | Arquivo no dossiê |
 |---|---|
