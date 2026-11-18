@@ -1,86 +1,118 @@
 # Shadow Project AI
 
-Este pacote ajuda a entender um repositório da empresa sem alterar o código original. O repositório alvo é fonte **somente de leitura**; todo material produzido forma um dossiê privado em outro diretório.
+Jeito de entender um repositório sem alterar o código. Cada pessoa instala a skill na própria máquina, abre o projeto que quer analisar e pede uma fase. O código alvo só é lido. Os markdowns saem numa pasta à parte, o dossiê, fora do Git desse projeto.
 
-## Resultado esperado
+A skill está em [reluviari/my-skills](https://github.com/reluviari/my-skills), pasta `shadow-project`.
 
-```text
-/repos/
-├── <REPO_ALVO>/                         # somente leitura
-└── _analises-privadas/
-    └── <REPO_ALVO>/                     # todos os artefatos gerados
-        ├── 00-contexto-e-inventario.md
-        ├── 01-project-spec.md
-        ├── 02-arquitetura.md
-        ├── 03-dependencias-e-integracoes.md
-        ├── 04-runbook-local.md
-        ├── 05-plano-docker.md
-        ├── 06-openapi.yaml
-        ├── 06-relatorio-openapi.md
-        ├── 07-harness.md
-        ├── 08-fluxos-criticos.md
-        ├── 09-riscos-e-lacunas.md
-        └── 10-relatorio-final.md
+## 1. Instalar, uma vez por pessoa
+
+Na pasta onde você guarda repositórios:
+
+```sh
+git clone https://github.com/reluviari/my-skills.git
+cd my-skills
+KIT="$(pwd)"
+name="shadow-project"
+for h in "$HOME/.claude/skills" "$HOME/.cursor/skills" "$HOME/.agents/skills" "$HOME/.codex/skills"; do
+  mkdir -p "$h"
+  ln -sfn "$KIT/$name" "$h/$name"
+done
 ```
 
-## Como usar
+Feche e abra de novo o Claude, o Cursor ou o Codex. A palavra `Shadow` passa a chamar esta skill em qualquer chat.
 
-1. Abra seu assistente de código no diretório `/repos`.
-2. Substitua `<REPO_ALVO>` e, se necessário, os caminhos nos prompts.
-3. Execute primeiro `00-prompt-mestre.md`; ele estabelece contexto, limites e diretório de saída.
-4. Execute os prompts de `01` a `10`, na ordem. Revise cada resultado antes de seguir.
-5. Se quiser uma única execução, use `99-prompt-completo.md` em vez da sequência temática.
-6. No final, confira se nenhum arquivo do repositório alvo foi alterado. O assistente deve mostrar o estado antes/depois e listar somente os arquivos criados no dossiê.
+Quem já tiver o clone só repete o bloco a partir de `cd my-skills`. Não copie a pasta da skill para outro lugar: o symlink aponta para o clone, e um `git pull` atualiza todo mundo que ligou assim.
+
+## 2. Rodar num projeto novo
+
+Não existe arquivo de configuração. Você não troca `<REPO_ALVO>` na mão. O caminho do projeto vai na frase.
+
+1. Abra o chat na pasta do projeto que vai ser analisado.
+2. Envie o caminho completo, com a pasta de verdade no lugar de `~/projetos/api-pedidos`:
+
+```text
+Shadow, inicia o dossiê de ~/projetos/api-pedidos
+```
+
+3. A fase 00 responde com três nomes e para. Confira se o código e o dossiê estão certos.
+4. Diga `próxima fase`. Leia o arquivo gerado. Repita até a fase 10.
+5. No fim, o agente compara o estado do projeto e lista só o que criou no dossiê.
+
+Para uma fase só: `Shadow, fase 03`. Para todas numa conversa: `Shadow, sessão completa`. Build, rede, teste e container continuam pedindo autorização.
+
+### Os três nomes
+
+Você informa o projeto. O agente calcula o resto e mostra na fase 00.
+
+| Nome | O que é | Se você disse `~/projetos/api-pedidos` |
+|---|---|---|
+| `REPO_ALVO` | Nome da pasta | `api-pedidos` |
+| `REPO_PATH` | Onde está o código. Nada é escrito aqui | `~/projetos/api-pedidos` |
+| `DOSSIER_PATH` | Onde saem os markdowns, fora do Git do projeto | `~/projetos/_analises-privadas/api-pedidos` |
+
+O dossiê nasce ao lado do projeto, em `_analises-privadas/<nome-da-pasta>`. Se essa pasta cair dentro de outro Git, o agente propõe outro lugar e espera confirmação. Para escolher o destino:
+
+```text
+Shadow, inicia o dossiê de ~/projetos/api-pedidos. O dossiê fica em ~/analises/api-pedidos
+```
+
+Outra pessoa, em outra máquina, repete os mesmos dois passos com o caminho dela. O dossiê fica na máquina de quem rodou. Ele não entra no repositório analisado.
+
+## O que dizer
+
+| Você diz | O que acontece |
+|---|---|
+| `Shadow, inicia o dossiê de <caminho>` | Fase 00. Valida o caminho, grava o plano e para |
+| `próxima fase` | A primeira fase cujo arquivo ainda não existe |
+| `Shadow, fase 03` | Só a arquitetura, se o arquivo da fase anterior existir |
+| `Shadow, sessão completa` | Fases 00 a 10, em ordem |
+
+| Fase | Arquivo no dossiê |
+|---|---|
+| 00 | `00-plano-de-analise.md` |
+| 01 | `00-contexto-e-inventario.md` |
+| 02 | `01-project-spec.md` |
+| 03 | `02-arquitetura.md` |
+| 04 | `03-dependencias-e-integracoes.md` |
+| 05 | `04-runbook-local.md` |
+| 06 | `05-plano-docker.md` |
+| 07 | `06-openapi.yaml` e `06-relatorio-openapi.md` |
+| 08 | `07-harness.md` |
+| 09 | `08-fluxos-criticos.md` e `09-riscos-e-lacunas.md` |
+| 10 | `10-relatorio-final.md` |
+
+A fase 06 pode acrescentar `laboratorio-docker/`. A fase 08 pode acrescentar `harness/`.
 
 ## Sequência
 
 ```mermaid
 flowchart TD
-    A[Definir repo alvo e saída privada] --> B[Inventário e contexto]
-    B --> C[Project Spec]
-    C --> D[Arquitetura]
-    D --> E[Dependências e integrações]
-    E --> F[Runbook local]
-    F --> G[Plano Docker isolado]
-    G --> H[Reverse engineering OpenAPI]
-    H --> I[Harness de validação]
-    I --> J[Fluxos críticos]
-    J --> K[Riscos e lacunas]
+    A[Dizer o caminho do projeto] --> B[Plano]
+    B --> C[Inventário]
+    C --> D[Project Spec]
+    D --> E[Arquitetura]
+    E --> F[Dependências]
+    F --> G[Runbook local]
+    G --> H[Docker isolado]
+    H --> I[OpenAPI]
+    I --> J[Harness]
+    J --> K[Fluxos e riscos]
     K --> L[Relatório final]
 ```
 
-## Modos de execução
+## Modos
 
-- **Inspeção estática:** padrão seguro. Apenas lê arquivos e não inicia serviços.
-- **Validação controlada:** executa comandos não destrutivos, testes e builds já existentes. Deve pedir confirmação antes de baixar dependências, acessar rede, iniciar containers ou serviços.
-- **Laboratório privado:** pode criar Dockerfiles, Compose, scripts e specs, mas somente no diretório do dossiê. Nunca copia segredos.
+- **Inspeção estática.** Padrão. Só lê arquivos.
+- **Validação controlada.** Testes e builds que o próprio repositório já documenta, depois que você autorizar.
+- **Laboratório privado.** Dockerfile, Compose e scripts só dentro do dossiê.
 
-## Regras essenciais
+## Regras
 
-- Nunca editar, criar, apagar, mover, formatar ou gerar arquivos dentro de `/repos/<REPO_ALVO>`.
-- Nunca fazer commit, push, PR, checkout destrutivo ou limpeza do repositório.
-- Não revelar valores de secrets; registrar apenas nome, origem e finalidade, com valor mascarado.
-- Não executar migrações, seeds, filas, jobs ou chamadas contra ambientes compartilhados.
-- Não assumir que exemplos são produção. Marcar cada afirmação como **Confirmado**, **Inferido** ou **Não confirmado**.
-- Citar evidências por caminho de arquivo e, quando possível, linha/símbolo.
-- Se uma validação puder mudar estado externo, parar e pedir autorização.
+- Nada é criado, editado ou apagado dentro do projeto alvo.
+- Sem commit, push, PR ou limpeza desse repositório.
+- Secret aparece só pelo nome, a origem e a finalidade. O valor fica mascarado.
+- Sem migração, seed, fila, job ou chamada a ambiente compartilhado.
+- Cada afirmação é **Confirmado**, **Inferido** ou **Não confirmado**, com o arquivo que sustenta.
+- Se um comando puder mudar algo fora do dossiê, o agente para e pede autorização.
 
-Leia também `CONVENCOES.md` antes de adaptar os prompts.
-
-## Índice dos prompts
-
-| Arquivo | Objetivo |
-|---|---|
-| `00-prompt-mestre.md` | Criar contexto, limites e plano |
-| `01-inventario-contexto.md` | Identificar stack, estrutura e responsabilidade |
-| `02-project-spec.md` | Produzir a especificação funcional/técnica |
-| `03-arquitetura.md` | Mapear componentes, fronteiras e fluxos |
-| `04-dependencias-integracoes.md` | Catalogar infraestrutura e sistemas externos |
-| `05-runbook-local.md` | Explicar como preparar, iniciar, verificar e diagnosticar |
-| `06-docker-isolado.md` | Desenhar empacotamento e execução isolada |
-| `07-openapi-reverse-engineering.md` | Inferir e validar o contrato HTTP |
-| `08-harness-validacao.md` | Projetar testes contra a aplicação isolada |
-| `09-fluxos-riscos.md` | Registrar fluxos críticos, riscos e lacunas |
-| `10-relatorio-final.md` | Consolidar o dossiê e próximos passos |
-| `99-prompt-completo.md` | Executar todo o processo em uma só sessão |
-
+Os arquivos `00` a `10` e o `99` deste repositório repetem o roteiro para um agente sem a skill. Com a skill instalada, não é preciso colar esses prompts.
